@@ -1,0 +1,29 @@
+# Python environment files
+env/
+.venv/
+venv/
+ENV/
+bin/
+lib/
+include/
+
+# Python cache and temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Streamlit temporary files
+.streamlit/
+
+# Local configuration and logs
+.env
+*.log
+
+# Project specific outputs (Optional - if you want to keep outputs only on local)
+# outputs/
