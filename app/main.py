@@ -3,7 +3,6 @@ import os
 import plotly.graph_objects as go
 import pandas as pd
 from pathlib import Path
-# Importing the Modular Data Engine
 from data_engine import ClimateDataEngine 
 
 # ==========================================
@@ -16,12 +15,10 @@ st.set_page_config(
 )
 
 # ==========================================
-# 2. DATA PROCESSING (Using Engine)
+# 2. DATA PROCESSING
 # ==========================================
-# This ensures the script knows exactly where it is located
-BASE_DIR = Path(__file__).resolve().parent.parent 
-APP_DIR = Path(__file__).resolve().parent
-
+# Resolve paths relative to the script location
+BASE_DIR = Path(__file__).resolve().parent.parent
 df_raw = ClimateDataEngine.generate_climate_data()
 df, anomalies_log, mean_val = ClimateDataEngine.process_analytics(df_raw)
 
@@ -29,7 +26,7 @@ df, anomalies_log, mean_val = ClimateDataEngine.process_analytics(df_raw)
 anomalies_log['Date'] = pd.to_datetime(anomalies_log['Date']).dt.date
 
 # ==========================================
-# 3. DASHBOARD UI & METRICS
+# 3. UI METRICS
 # ==========================================
 st.title("🌍 Climate Trend & Anomaly Intelligence")
 st.markdown("---")
@@ -41,22 +38,27 @@ k3.metric("Max Recorded", f"{df['Temperature'].max():.2f} °C")
 k4.metric("Extreme Events", f"{len(anomalies_log)} Detects")
 
 # ==========================================
-# 4. MAIN VISUALIZATION
+# 4. DATA VISUALIZATION
 # ==========================================
 st.subheader("Historical Temperature Analysis & Trend Decomposition")
 fig = go.Figure()
 
+# Plot variance
 fig.add_trace(go.Scatter(
     x=df['Date'], y=df['Temperature'], 
     name='Monthly Variance', 
     line=dict(color='#8ecae6', width=1.5), 
     opacity=0.6
 ))
+
+# Plot trendline
 fig.add_trace(go.Scatter(
     x=df['Date'], y=df['Warming_Trend'], 
     name='Long-term Trend', 
     line=dict(color='#d00000', width=3)
 ))
+
+# Plot anomalies
 fig.add_trace(go.Scatter(
     x=anomalies_log['Date'], y=anomalies_log['Temperature'], 
     mode='markers', name='Climate Anomaly', 
@@ -72,32 +74,20 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # ==========================================
-# 5. SCREENSHOT SHOWING SECTION (SS)
+# 5. INTERFACE PREVIEW (IMAGE)
 # ==========================================
 st.markdown("---")
 st.subheader("📷 Project Interface Preview")
-
-# Search logic for the screenshot in multiple possible locations
 ss_filename = "dashboard_ss.png"
-possible_paths = [
-    BASE_DIR / ss_filename,          # Project root
-    APP_DIR / ss_filename,           # Inside 'app' folder
-    BASE_DIR / "assets" / ss_filename # Inside an 'assets' folder
-]
+ss_path = BASE_DIR / ss_filename
 
-found_path = None
-for p in possible_paths:
-    if p.exists():
-        found_path = p
-        break
-
-if found_path:
-    st.image(str(found_path), caption="Live Dashboard Analysis Overview", use_container_width=True)
+if ss_path.exists():
+    st.image(str(ss_path), caption="Live Dashboard Analysis Overview", use_container_width=True)
 else:
-    st.warning(f"⚠️ Screenshot '{ss_filename}' not found. Please place it in: {BASE_DIR}")
+    st.warning(f"⚠️ Screenshot '{ss_filename}' not found in: {BASE_DIR}")
 
 # ==========================================
-# 6. DATA TABLES & EXPORT
+# 6. DATA REGISTRY
 # ==========================================
 st.subheader("🚨 Extreme Event Registry")
 st.dataframe(
@@ -105,10 +95,5 @@ st.dataframe(
     use_container_width=True, 
     hide_index=True
 )
-
-# Auto Export logic using Pathlib for safety
-output_dir = BASE_DIR / "outputs"
-output_dir.mkdir(exist_ok=True)
-anomalies_log.to_csv(output_dir / "climate_anomalies.csv", index=False)
 
 st.sidebar.success("✅ Connected to Data Engine")
